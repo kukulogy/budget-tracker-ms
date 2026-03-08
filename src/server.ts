@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import fastifyEnv from "@fastify/env";
-import config from "./config/config.json"
+import { Config, config } from "./config/config";
 import fastifyPrintRoutes from 'fastify-print-routes'
 import rootRoutes from "./routes/root.routes";
 import userRoutes from "./routes/user.routes";
@@ -17,23 +17,15 @@ const options = {
 app.register(fastifyPrintRoutes);
 app.register(rootRoutes);
 app.register(userRoutes, { prefix: "/api/v1/users" });
-await app.register(fastifyEnv, options).ready((err) => {
-  if (err) console.error(err);
 
-  console.log(app.config);
-  console.log(app.getEnvs());
-});
+await app.register(fastifyEnv, options);
+await app.ready();
 
-app.after(() => {
-  app.listen({
-    port: app.config.PORT
-  }, (err, address) => {
-    app.log.debug("Hello World", app.config);
+app.listen({ port: app.config.PORT }, (err, address) => {
+  app.log.debug(`Listening to port ${address}:${app.config.PORT}`);
 
-    if(err) {
-      console.log(app.config.PORT);
-      app.log.error(err);
-      process.exit(1);
-    }
-  })
+  if(err) {
+    app.log.error(err);
+    process.exit(1);
+  }
 })
