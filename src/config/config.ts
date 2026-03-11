@@ -6,9 +6,12 @@ const config = {
   properties: {
     PORT: {
       type: "number",
-      default: 3000
-    }
-  }
+      default: 3001,
+    },
+    DATABASE_URL: {
+      type: "string",
+    },
+  },
 } as const;
 
 type Config = FromSchema<typeof config>;
