@@ -2,7 +2,7 @@ import { RouteGenericInterface } from "fastify";
 import { FromSchema } from "json-schema-to-ts";
 import { ResponseSchema } from "../response";
 
-const userRegistration = {
+const userRegistrationSchema = {
   type: "object",
   required: ["email", "password", "firstName", "lastName"],
   properties: {
@@ -21,10 +21,10 @@ const userRegistration = {
   },
 } as const;
 
-type UserRegistrationType = FromSchema<typeof userRegistration>;
+type UserRegistrationType = FromSchema<typeof userRegistrationSchema>;
 
 interface UserRegistrationRequest extends RouteGenericInterface {
   Body: UserRegistrationType;
   Reply: ResponseSchema;
 }
-export { UserRegistrationRequest, userRegistration };
+export { UserRegistrationRequest, userRegistrationSchema };
