@@ -39,7 +39,7 @@ export class UserClass {
     res: FastifyReply<UserRegistrationRequest>,
   ) {
     try {
-      await this.userService.createUser(req.body);
+      const user = await this.userService.createUser(req.body);
       res
         .status(200)
         .send({ status: 200, code: "USER_REGISTRATION_SUCCESS", data: {} });

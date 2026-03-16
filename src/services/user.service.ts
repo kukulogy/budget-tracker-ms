@@ -21,8 +21,7 @@ export class UserService {
       if (user) {
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-          console.log("UserService.login: Invalid password for user: ", email);
-          return null;
+          throw new Error("Invalid password for user: " + email);
         }
 
         delete user.password;
@@ -33,9 +32,8 @@ export class UserService {
 
       console.log("UserService.login: User found: ", user);
       return user;
-    } catch (error) {
-      console.error("UserService.login: Error occurred: ", error);
-      throw error;
+    } catch (err) {
+      throw err.message;
     }
   }
 
@@ -63,8 +61,7 @@ export class UserService {
       console.log("UserService.createUser: User created successfully: ", user);
       return user;
     } catch (err) {
-      console.log(err);
-      return err;
+      throw err.message;
     }
   }
 
