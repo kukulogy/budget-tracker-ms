@@ -4,7 +4,7 @@ import { ResponseSchema } from "../response";
 
 const userRegistrationSchema = {
   type: "object",
-  required: ["email", "password", "firstName", "lastName"],
+  required: ["email", "password", "firstname", "lastname"],
   properties: {
     email: {
       type: "string",
@@ -12,10 +12,10 @@ const userRegistrationSchema = {
     password: {
       type: "string",
     },
-    firstName: {
+    firstname: {
       type: "string",
     },
-    lastName: {
+    lastname: {
       type: "string",
     },
   },

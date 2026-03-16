@@ -1,13 +1,15 @@
 import { FastifyInstance } from "fastify";
-import { login, registration } from "../controllers/user.controller";
+import { UserClass } from "../controllers/user.controller";
 import { userRegistrationSchema } from "../types/user/user.registration.d.ts";
 
 const userRoutes = async (fastify: FastifyInstance, options) => {
-  fastify.post("/login", login);
+  const userController = new UserClass(fastify);
+
+  fastify.post("/login", userController.login.bind(userController));
   fastify.post(
     "/registration",
     { schema: { body: userRegistrationSchema } },
-    registration,
+    userController.registration.bind(userController),
   );
 };
 

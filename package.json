@@ -4,10 +4,11 @@
     "@fastify/env": "^5.0.3",
     "@fastify/mongodb": "^10.0.0",
     "@fastify/swagger": "^9.7.0",
-    "@prisma/client": "^7.4.2",
+    "bcrypt": "^6.0.0",
     "decimal.js": "^10.6.0",
     "fastify": "^5.8.1",
-    "fastify-plugin": "^5.1.0"
+    "fastify-plugin": "^5.1.0",
+    "jsonwebtoken": "^9.0.3"
   },
   "type": "module",
   "name": "budget-tracker-ms",
@@ -23,6 +24,9 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "@types/bcrypt": "^6.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^10.0.2",

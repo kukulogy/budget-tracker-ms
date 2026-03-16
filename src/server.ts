@@ -22,7 +22,6 @@ await app.register(prisma);
 app.register(fastifyPrintRoutes);
 app.register(rootRoutes);
 app.register(userRoutes, { prefix: "/api/v1/users" });
-
 await app.ready();
 
 app.listen({ port: app.config.PORT }, (err, address) => {

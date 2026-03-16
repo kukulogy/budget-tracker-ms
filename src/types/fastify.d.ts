@@ -1,8 +1,10 @@
 import "fastify";
+import { PrismaClient } from "@prisma/client";
 import { Config } from "../config/config";
 
-declare module 'fastify' {
+declare module "fastify" {
   interface FastifyInstance {
-    config: Config
+    config: Config;
+    prisma: PrismaClient;
   }
 }
