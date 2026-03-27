@@ -17,15 +17,15 @@ export class UserClass {
     try {
       const { email, password } = req.body;
       const user = await this.userService.login(email, password);
-
       if (!user) {
         throw new Error("Invalid email or password");
       }
+      const token = this.fastify.jwt.sign({ id: user.id, email: user.email });
 
       res.send({
         status: 200,
         code: "USER_LOGIN_SUCCESS",
-        data: { ...user },
+        data: { ...user, token },
       });
     } catch (err) {
       res

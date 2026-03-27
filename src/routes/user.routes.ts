@@ -11,6 +11,13 @@ const userRoutes = async (fastify: FastifyInstance, options) => {
     { schema: { body: userRegistrationSchema } },
     userController.registration,
   );
+  fastify.get(
+    "/me",
+    { preHandler: [fastify.authenticate] },
+    async (req, res) => {
+      res.send({ user: req.user });
+    },
+  );
 };
 
 export default userRoutes;

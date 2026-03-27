@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { UserRegistrationRequest } from "../types/user/user.registration";
 import bcrypt from "bcrypt";
+import fastify from "fastify";
 import { generateJWT } from "../helpers/jwt";
 import { UserRepository } from "../repositories/user.repository";
 
@@ -26,8 +27,7 @@ export class UserService {
 
         delete user.password;
 
-        const token = await generateJWT(user);
-        return { ...user, token };
+        return { ...user };
       }
 
       console.log("UserService.login: User found: ", user);

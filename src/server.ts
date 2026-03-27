@@ -5,6 +5,7 @@ import fastifyPrintRoutes from "fastify-print-routes";
 import rootRoutes from "./routes/root.routes";
 import userRoutes from "./routes/user.routes";
 import prisma from "./plugins/prisma";
+import jwt from "./plugins/jwt";
 
 const app = Fastify({
   logger: true,
@@ -18,6 +19,7 @@ const options = {
 
 await app.register(fastifyEnv, options);
 await app.register(prisma);
+await app.register(jwt);
 
 app.register(fastifyPrintRoutes);
 app.register(rootRoutes);
