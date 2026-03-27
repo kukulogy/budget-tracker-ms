@@ -2,21 +2,21 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { UserRegistrationRequest } from "../types/user/user.registration";
 import bcrypt from "bcrypt";
 import { generateJWT } from "../helpers/jwt";
+import { UserRepository } from "../repositories/user.repository";
 
 export class UserService {
+  private userRepository: UserRepository;
+
   constructor(private readonly prisma: PrismaClient) {
     this.prisma = prisma;
+    this.userRepository = new UserRepository(this.prisma);
   }
 
   async login(email: string, password: string) {
     console.log("UserService.login: ", email);
 
     try {
-      const user = await this.prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
+      const user = await this.userRepository.findByEmail(email);
 
       if (user) {
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -41,32 +41,23 @@ export class UserService {
     console.log("UserService.createUser: ", data);
     const { email, password, firstname, lastname } = data;
     try {
-      const hashedPassword = await this.hashPassword(password);
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email },
-      });
+      const existingUser = await this.userRepository.findByEmail(email);
 
       if (existingUser) {
         throw new Error("Email is already in use");
       }
 
-      const user = await this.prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          firstname,
-          lastname,
-        },
+      const user = await this.userRepository.createUser({
+        email,
+        password,
+        firstname,
+        lastname,
       });
+
       console.log("UserService.createUser: User created successfully: ", user);
       return user;
     } catch (err) {
       throw err.message;
     }
-  }
-
-  private async hashPassword(password: string) {
-    const hash = await bcrypt.hash(password, 10);
-    return hash;
   }
 }

@@ -10,10 +10,10 @@ export class UserClass {
     this.userService = new UserService(this.fastify.prisma);
   }
 
-  async login(
+  login = async (
     req: FastifyRequest<UserLoginRequest>,
     res: FastifyReply<UserLoginRequest>,
-  ) {
+  ) => {
     try {
       const { email, password } = req.body;
       const user = await this.userService.login(email, password);
@@ -29,15 +29,15 @@ export class UserClass {
       });
     } catch (err) {
       res
-        .status(500)
-        .send({ status: 500, code: "USER_LOGIN_FAILED", data: { err } });
+        .status(400)
+        .send({ status: 400, code: "USER_LOGIN_FAILED", data: { err } });
     }
-  }
+  };
 
-  async registration(
+  registration = async (
     req: FastifyRequest<UserRegistrationRequest>,
     res: FastifyReply<UserRegistrationRequest>,
-  ) {
+  ) => {
     try {
       const user = await this.userService.createUser(req.body);
       res
@@ -49,5 +49,5 @@ export class UserClass {
         .status(500)
         .send({ status: 500, code: "USER_REGISTRATION_FAILED", data: { err } });
     }
-  }
+  };
 }
