@@ -12,11 +12,9 @@ const userRoutes = async (fastify: FastifyInstance, options) => {
     userController.registration,
   );
   fastify.get(
-    "/me",
+    "/dashboard",
     { preHandler: [fastify.authenticate] },
-    async (req, res) => {
-      res.send({ user: req.user });
-    },
+    userController.dashboard,
   );
 };
 

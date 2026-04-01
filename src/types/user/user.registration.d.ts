@@ -27,4 +27,8 @@ interface UserRegistrationRequest extends RouteGenericInterface {
   Body: UserRegistrationType;
   Reply: ResponseSchema;
 }
-export { UserRegistrationRequest, userRegistrationSchema };
+export {
+  UserRegistrationRequest,
+  userRegistrationSchema,
+  UserRegistrationType,
+};

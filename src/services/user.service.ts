@@ -1,9 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { UserRegistrationRequest } from "../types/user/user.registration";
+import {
+  UserRegistrationRequest,
+  UserRegistrationType,
+} from "../types/user/user.registration";
 import bcrypt from "bcrypt";
-import fastify from "fastify";
-import { generateJWT } from "../helpers/jwt";
 import { UserRepository } from "../repositories/user.repository";
+import { toError } from "../utils/errors";
 
 export class UserService {
   private userRepository: UserRepository;
@@ -18,7 +20,6 @@ export class UserService {
 
     try {
       const user = await this.userRepository.findByEmail(email);
-
       if (user) {
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
@@ -26,14 +27,13 @@ export class UserService {
         }
 
         delete user.password;
-
         return { ...user };
       }
 
       console.log("UserService.login: User found: ", user);
       return user;
     } catch (err) {
-      throw err.message;
+      throw toError(err);
     }
   }
 
@@ -57,7 +57,7 @@ export class UserService {
       console.log("UserService.createUser: User created successfully: ", user);
       return user;
     } catch (err) {
-      throw err.message;
+      throw toError(err);
     }
   }
 }

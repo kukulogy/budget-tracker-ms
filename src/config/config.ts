@@ -14,6 +14,12 @@ const config = {
     JWT_SECRET: {
       type: "string",
     },
+    REDIS_HOST: {
+      type: "string",
+    },
+    REDIS_PORT: {
+      type: "number",
+    },
   },
 } as const;
 

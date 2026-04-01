@@ -18,6 +18,9 @@ const options = {
 };
 
 await app.register(fastifyEnv, options);
+await app.register(fastifyRedis, {
+  url: `redis://${app.config.REDIS_HOST}:${app.config.REDIS_PORT}`,
+});
 await app.register(prisma);
 await app.register(jwt);
 

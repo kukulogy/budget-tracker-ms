@@ -13,7 +13,7 @@ const jwtPlugin: FastifyPluginAsync = async (fastify) => {
 
   fastify.decorate("authenticate", async (request, reply) => {
     try {
-      await request.jwtVerify();
+      await request.jwtVerify({ maxAge: "1h" });
     } catch (err) {
       reply.status(401).send({ status: 401, code: "UNAUTHORIZED" });
     }
