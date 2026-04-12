@@ -1,18 +1,17 @@
 import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
-import { FastifyRedis } from "@fastify/redis";
 import { UserRegistrationRequest } from "../types/user/user.registration";
 import { UserService } from "../services/user.service";
 import { UserLoginRequest } from "../types/user/user.login";
-import jwt from "../plugins/jwt";
-import { RedisHelper } from "../helpers/redis";
+import { toError } from "../utils/errors";
+import { AuthService } from "../services/auth.service";
 
 export class UserClass {
   private userService: UserService;
-  private redis: RedisHelper;
+  private authService: AuthService;
 
   constructor(private readonly fastify: FastifyInstance) {
-    this.redis = new RedisHelper(this.fastify);
     this.userService = new UserService(this.fastify.prisma);
+    this.authService = new AuthService(this.fastify);
   }
 
   login = async (
@@ -21,23 +20,7 @@ export class UserClass {
   ) => {
     try {
       const { email, password } = req.body;
-      const user = await this.userService.login(email, password);
-      if (!user) {
-        throw new Error("Invalid email or password");
-      }
-
-      await this.redis.getOrSet(user.email, async () => {
-        return JSON.stringify(user);
-      });
-
-      const token = this.fastify.jwt.sign({
-        id: user.id,
-        email: user.email,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-      });
+      const { user, token } = await this.authService.login(email, password);
 
       res.send({
         status: 200,
@@ -45,10 +28,11 @@ export class UserClass {
         data: { ...user, token },
       });
     } catch (err) {
+      const error = toError(err);
       res.status(400).send({
         status: 400,
         code: "USER_LOGIN_FAILED",
-        data: { message: err.message },
+        data: { message: error.message },
       });
     }
   };
@@ -63,35 +47,21 @@ export class UserClass {
         .status(200)
         .send({ status: 200, code: "USER_REGISTRATION_SUCCESS", data: {} });
     } catch (err) {
+      const error = toError(err);
       console.log(err);
       res.status(500).send({
         status: 500,
         code: "USER_REGISTRATION_FAILED",
-        data: { message: err.message },
+        data: { message: error.message },
       });
     }
   };
 
   dashboard = async (req: FastifyRequest, res: FastifyReply) => {
-    const user = await this.redis.getOrSet(req.user.email, async () => {
-      return JSON.stringify(req.user);
-    });
-
-    console.log("User.dashboard: ", req.user, user);
-
-    if (!user) {
-      res.send({
-        status: 500,
-        code: "USER_DASHBOARD_FAILED",
-        data: { message: "User not found in cache" },
-      });
-      return;
-    }
-
     res.send({
       status: 200,
       code: "USER_DASHBOARD_SUCCESS",
-      data: { user: JSON.parse(user) },
+      data: { user: req.user },
     });
   };
 }

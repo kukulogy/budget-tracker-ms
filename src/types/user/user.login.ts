@@ -1,3 +1,7 @@
+import { RouteGenericInterface } from "fastify";
+import { FromSchema } from "json-schema-to-ts";
+import { ResponseSchema } from "../response";
+
 const UserLoginSchema = {
   type: "object",
   required: ["email", "password"],
@@ -9,7 +13,7 @@ const UserLoginSchema = {
       type: "string",
     },
   },
-};
+} as const;
 
 type UserLoginType = FromSchema<typeof UserLoginSchema>;
 
@@ -18,4 +22,4 @@ interface UserLoginRequest extends RouteGenericInterface {
   Reply: ResponseSchema;
 }
 
-export { UserLoginRequest, UserLoginSchema };
+export { UserLoginRequest, UserLoginSchema, UserLoginType };

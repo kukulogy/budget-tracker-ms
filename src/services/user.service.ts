@@ -1,18 +1,34 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import {
-  UserRegistrationRequest,
-  UserRegistrationType,
-} from "../types/user/user.registration";
+import { PrismaClient } from "@prisma/client";
+import { UserRegistrationType } from "../types/user/user.registration";
 import bcrypt from "bcrypt";
 import { UserRepository } from "../repositories/user.repository";
 import { toError } from "../utils/errors";
 
-export class UserService {
-  private userRepository: UserRepository;
+type UserRepositoryPort = {
+  findByEmail: (email: string) => Promise<any | null>;
+  createUser: (data: UserRegistrationType) => Promise<any>;
+};
 
-  constructor(private readonly prisma: PrismaClient) {
+type PasswordHasherPort = {
+  compare: (plain: string, hash: string) => Promise<boolean>;
+};
+
+export class UserService {
+  private userRepository: UserRepositoryPort;
+  private passwordHasher: PasswordHasherPort;
+
+  constructor(
+    private readonly prisma: PrismaClient,
+    deps?: {
+      userRepository?: UserRepositoryPort;
+      passwordHasher?: PasswordHasherPort;
+    },
+  ) {
     this.prisma = prisma;
-    this.userRepository = new UserRepository(this.prisma);
+    this.userRepository = deps?.userRepository ?? new UserRepository(this.prisma);
+    this.passwordHasher = deps?.passwordHasher ?? {
+      compare: (plain, hash) => bcrypt.compare(plain, hash),
+    };
   }
 
   async login(email: string, password: string) {
@@ -21,7 +37,10 @@ export class UserService {
     try {
       const user = await this.userRepository.findByEmail(email);
       if (user) {
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await this.passwordHasher.compare(
+          password,
+          user.password,
+        );
         if (!isPasswordValid) {
           throw new Error("Invalid password for user: " + email);
         }
