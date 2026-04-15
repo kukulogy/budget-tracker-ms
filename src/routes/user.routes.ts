@@ -3,7 +3,7 @@ import { UserClass } from "../controllers/user.controller";
 import { UserRegistrationSchema } from "../types/user/user.registration";
 import { UserLoginSchema } from "../types/user/user.login";
 
-const userRoutes = async (fastify: FastifyInstance, options) => {
+const userRoutes = async (fastify: FastifyInstance) => {
   const userController = new UserClass(fastify);
 
   fastify.post(
