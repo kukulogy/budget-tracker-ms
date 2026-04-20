@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Debug secrets
+        run: |
+          echo "Region is: ${{ secrets.AWS_REGION }}"
+          echo "ECR URI is: ${{ secrets.ECR_REPOSITORY_URI }}"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
