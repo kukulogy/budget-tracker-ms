@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 import { UserRegistrationRequest } from "../types/user/user.registration";
 import { UserService } from "../services/user.service";
 import { UserLoginRequest } from "../types/user/user.login";
-import { toError } from "../utils/errors";
+import { HttpError, toHttpError, UnauthorizedError } from "../utils/errors";
 import { AuthService } from "../services/auth.service";
 
 export class UserClass {
@@ -28,10 +28,10 @@ export class UserClass {
         data: { ...user, token },
       });
     } catch (err) {
-      const error = toError(err);
-      res.status(400).send({
-        status: 400,
-        code: "USER_LOGIN_FAILED",
+      const error = toHttpError(err, "USER_LOGIN_FAILED");
+      res.status(error.statusCode).send({
+        status: error.statusCode,
+        code: error.code,
         data: { message: error.message },
       });
     }
@@ -42,16 +42,16 @@ export class UserClass {
     res: FastifyReply<UserRegistrationRequest>,
   ) => {
     try {
-      const user = await this.userService.createUser(req.body);
+      await this.userService.createUser(req.body);
       res
-        .status(200)
-        .send({ status: 200, code: "USER_REGISTRATION_SUCCESS", data: {} });
+        .status(201)
+        .send({ status: 201, code: "USER_REGISTRATION_SUCCESS", data: {} });
     } catch (err) {
-      const error = toError(err);
-      console.log(err);
-      res.status(500).send({
-        status: 500,
-        code: "USER_REGISTRATION_FAILED",
+      const error = toHttpError(err, "USER_REGISTRATION_FAILED");
+      req.log.error({ err }, "User registration failed");
+      res.status(error.statusCode).send({
+        status: error.statusCode,
+        code: error.code,
         data: { message: error.message },
       });
     }

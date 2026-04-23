@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../helpers/hash";
+import { UserRegistrationType } from "../types/user/user.registration";
+import { toError } from "../utils/errors";
 export class UserRepository {
   constructor(private readonly prisma: PrismaClient) {
     this.prisma = prisma;
@@ -15,7 +17,7 @@ export class UserRepository {
 
       return user;
     } catch (err) {
-      throw err.message;
+      throw toError(err);
     }
   }
 
@@ -33,7 +35,7 @@ export class UserRepository {
       });
       return user;
     } catch (err) {
-      throw err.message;
+      throw toError(err);
     }
   }
 }

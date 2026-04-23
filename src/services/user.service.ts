@@ -1,12 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { UserRegistrationType } from "../types/user/user.registration";
 import bcrypt from "bcrypt";
 import { UserRepository } from "../repositories/user.repository";
-import { toError } from "../utils/errors";
+import { ConflictError, UnauthorizedError, toError } from "../utils/errors";
+
+type PublicUser = Omit<User, "password">;
 
 type UserRepositoryPort = {
-  findByEmail: (email: string) => Promise<any | null>;
-  createUser: (data: UserRegistrationType) => Promise<any>;
+  findByEmail: (email: string) => Promise<User | null>;
+  createUser: (data: UserRegistrationType) => Promise<User>;
 };
 
 type PasswordHasherPort = {
@@ -25,7 +27,8 @@ export class UserService {
     },
   ) {
     this.prisma = prisma;
-    this.userRepository = deps?.userRepository ?? new UserRepository(this.prisma);
+    this.userRepository =
+      deps?.userRepository ?? new UserRepository(this.prisma);
     this.passwordHasher = deps?.passwordHasher ?? {
       compare: (plain, hash) => bcrypt.compare(plain, hash),
     };
@@ -42,11 +45,10 @@ export class UserService {
           user.password,
         );
         if (!isPasswordValid) {
-          throw new Error("Invalid password for user: " + email);
+          throw new UnauthorizedError();
         }
 
-        delete user.password;
-        return { ...user };
+        return this.toPublicUser(user);
       }
 
       console.log("UserService.login: User found: ", user);
@@ -57,13 +59,13 @@ export class UserService {
   }
 
   async createUser(data: UserRegistrationType) {
-    console.log("UserService.createUser: ", data);
+    console.log("UserService.createUser: ");
     const { email, password, firstname, lastname } = data;
     try {
       const existingUser = await this.userRepository.findByEmail(email);
 
       if (existingUser) {
-        throw new Error("Email is already in use");
+        throw new ConflictError("Email is already in use");
       }
 
       const user = await this.userRepository.createUser({
@@ -78,5 +80,16 @@ export class UserService {
     } catch (err) {
       throw toError(err);
     }
+  }
+
+  private toPublicUser(user: User): PublicUser {
+    return {
+      id: user.id,
+      email: user.email,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
   }
 }

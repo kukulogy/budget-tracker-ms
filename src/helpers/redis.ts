@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance } from "fastify";
+import { FastifyInstance } from "fastify";
 import { FastifyRedis } from "@fastify/redis";
 
 type GetOrSetOptions = {
@@ -27,7 +27,7 @@ export class RedisHelper {
     if (cached) return cached;
 
     const lockKey = `lock:${key}`;
-    const lock = await this.redis.set(lockKey, "1", "NX", "EX", lockTTL);
+    const lock = await this.redis.set(lockKey, "1", "EX", lockTTL, "NX");
 
     if (lock) {
       console.log("RedisHelper.getOrSet: Acquired lock for key: ", key);

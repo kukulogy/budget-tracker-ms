@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { UserService } from "./user.service";
 import { RedisHelper } from "../helpers/redis";
-import { toError } from "../utils/errors";
+import { UnauthorizedError, toError } from "../utils/errors";
 
 export class AuthService {
   private userService: UserService;
@@ -18,7 +18,7 @@ export class AuthService {
 
       const user = await this.userService.login(email, password);
       if (!user) {
-        throw new Error("Invalid email or password");
+        throw new UnauthorizedError();
       }
 
       await this.redis.getOrSet(user.email, async () => {
