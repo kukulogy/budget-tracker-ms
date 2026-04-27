@@ -15,14 +15,7 @@ export class GoalController {
     res: FastifyReply<CreateGoalRequest>,
   ) => {
     try {
-      const { goal_amount, goal_name } = req.body;
-      const user_id = req.user.id;
-
-      const goal = await this.goalService.createGoal(
-        user_id,
-        goal_amount,
-        goal_name,
-      );
+      const goal = await this.goalService.createGoal(req.body, req.user.id);
 
       return res.send({
         status: 200,
@@ -30,6 +23,7 @@ export class GoalController {
         data: goal,
       });
     } catch (err) {
+      console.log(err);
       const error = toHttpError(err, "GOAL_CREATION_FAILED");
       return res.status(400).send({
         status: error.statusCode,

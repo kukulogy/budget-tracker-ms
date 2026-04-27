@@ -1,21 +1,26 @@
 import { PrismaClient } from "@prisma/client";
 import { toError } from "../utils/errors";
+import { CreateGoalType } from "../types/goal/goal.create";
 
 export class GoalRepository {
   constructor(private readonly prisma: PrismaClient) {
     this.prisma = prisma;
   }
 
-  async createGoal(user_id: number, goal_amount: number, goal_name: string) {
+  async createGoal(data: CreateGoalType, user_id: number) {
     try {
+      const { goal_name, goal_amount, target_date, contribution_frequency } =
+        data;
       const goal = await this.prisma.goal.create({
         data: {
           user_id,
           goal_name,
-          goal_status: "ONGOING",
           goal_amount,
+          goal_status: "ONGOING",
           goal_currency: "PHP",
           goal_type: "SAVINGS",
+          target_date,
+          contribution_frequency,
         },
       });
       return goal;
