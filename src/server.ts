@@ -1,9 +1,11 @@
 import Fastify from "fastify";
 import fastifyEnv from "@fastify/env";
+import fastifyRedis from "@fastify/redis";
 import { Config, config } from "./config/config";
 import fastifyPrintRoutes from "fastify-print-routes";
 import rootRoutes from "./routes/root.routes";
 import userRoutes from "./routes/user.routes";
+import goalRoutes from "./routes/goal.routes";
 import prisma from "./plugins/prisma";
 import jwt from "./plugins/jwt";
 
@@ -27,6 +29,15 @@ await app.register(jwt);
 app.register(fastifyPrintRoutes);
 app.register(rootRoutes);
 app.register(userRoutes, { prefix: "/api/v1/users" });
+app.register(goalRoutes, { prefix: "/api/v1" });
+
+app.get("/ping", async (request, reply) => {
+  const { redis } = app; // Access the Redis client via fastify instance
+  await redis.set("key", "value");
+  const value = await redis.get("key");
+  return { status: "ok", value };
+});
+
 await app.ready();
 
 app.listen({ port: app.config.PORT }, (err, address) => {
